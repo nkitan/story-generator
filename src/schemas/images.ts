@@ -1,4 +1,6 @@
 import { pgTable, serial, varchar } from "drizzle-orm/pg-core";
+import { segments } from "@/schemas/segments";
+import { relations } from "drizzle-orm";
 
 export const images = pgTable('images', {
   id: serial('id').primaryKey(),

@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "drizzle-kit generate --schema src/schemas/ --dialect postgresql",
-    "migrate": "drizzle-kit migrate"
+    "db:generate": "drizzle-kit generate --schema src/schemas/ --dialect postgresql",
+    "db:migrate": "drizzle-kit migrate",
+    "db": "drizzle-kit generate --schema src/schemas/ --dialect postgresql && drizzle-kit migrate"
   },
   "dependencies": {
     "@dicebear/collection": "^9.2.1",

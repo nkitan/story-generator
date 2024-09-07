@@ -1,4 +1,6 @@
+import { relations } from "drizzle-orm";
 import { pgTable, serial, varchar, json, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { stories } from "@/schemas/stories";
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -15,3 +17,7 @@ export const users = pgTable('users', {
     };
   }
 );
+
+export const usersRelations = relations(users, ({ many }) => ({
+  stories: many(stories),
+}));
