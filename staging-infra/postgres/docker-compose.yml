@@ -1,0 +1,105 @@
+services:
+  pgpool:
+    image: bitnami/pgpool:latest
+    environment:
+      - PGPOOL_BACKEND_NODES=0:pgmaster:5432:1
+      - PGPOOL_SR_CHECK_USER=${REPLICATION_USER}
+      - PGPOOL_SR_CHECK_PASSWORD=${REPLICATION_PASSWORD}
+      - PGPOOL_POSTGRES_USERNAME=${POSTGRES_USER}
+      - PGPOOL_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGPOOL_ADMIN_USERNAME=admin
+      - PGPOOL_ADMIN_PASSWORD=${PGPOOL_ADMIN_PASSWORD}
+    ports:
+      - "5432:5432"
+      - "9898:9898"
+    depends_on:
+      - pgmaster
+      - pgslave1
+      - pgslave2
+    networks:
+      - pgnet
+
+  pgmaster:
+    image: postgres:16
+    user: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: mydb
+      REPLICATION_USER: ${REPLICATION_USER}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - pgmaster-data:${PGDATA_DIR}
+      - ./pgmaster/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./pgmaster/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./init-users.sql:/docker-entrypoint-initdb.d/init-users.sql
+    networks:
+      - pgnet
+    command: postgres -D ${PGDATA_DIR} -c hba_file='/etc/postgresql/pg_hba.conf'
+
+  pgslave1:
+    image: postgres:16
+    user: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REPLICATION_USER: ${REPLICATION_USER}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: ${PGDATA_DIR}
+    volumes:
+      - pgslave1-data:${PGDATA_DIR}
+      - ./init-users.sql:/docker-entrypoint-initdb.d/init-users.sql
+      - ./pgslave/pg_hba.conf:/etc/postgresql/pg_hba.conf
+    networks:
+      - pgnet
+    depends_on:
+      - pgmaster
+    command: >
+      bash -c "
+      chown -R ${POSTGRES_USER}:${POSTGRES_USER} ${PGDATA_DIR} &&
+      chmod 0700 ${PGDATA_DIR} &&
+      until pg_isready -h pgmaster -U ${POSTGRES_USER}; do
+      echo 'Waiting for master to be ready...'; sleep 2; done;
+      PGPASSWORD=${REPLICATION_PASSWORD} pg_basebackup -h pgmaster -U ${REPLICATION_USER} -D ${PGDATA_DIR} -Fp -Xs -P -R;
+      postgres -D ${PGDATA_DIR} -c hba_file='/etc/postgresql/pg_hba.conf'
+      "
+
+  pgslave2:
+    image: postgres:16
+    user: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REPLICATION_USER: ${REPLICATION_USER}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: ${PGDATA_DIR}
+    volumes:
+      - pgslave2-data:${PGDATA_DIR}
+      - ./init-users.sql:/docker-entrypoint-initdb.d/init-users.sql
+      - ./pgslave/pg_hba.conf:/etc/postgresql/pg_hba.conf
+
+    networks:
+      - pgnet
+    depends_on:
+      - pgmaster
+    command: >
+      bash -c "
+      chown -R ${POSTGRES_USER}:${POSTGRES_USER} ${PGDATA_DIR} &&
+      chmod 0700 ${PGDATA_DIR} &&
+      until pg_isready -h pgmaster -U ${POSTGRES_USER}; do
+      echo 'Waiting for master to be ready...'; sleep 2; done;
+      PGPASSWORD=${REPLICATION_PASSWORD} pg_basebackup -h pgmaster -U ${REPLICATION_USER} -D ${PGDATA_DIR} -Fp -Xs -P -R;
+      postgres -D ${PGDATA_DIR} -c hba_file='/etc/postgresql/pg_hba.conf'
+      "
+
+volumes:
+  pgmaster-data:
+  pgslave1-data:
+  pgslave2-data:
+
+networks:
+  pgnet:
+    driver: bridge

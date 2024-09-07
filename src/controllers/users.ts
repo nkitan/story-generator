@@ -17,7 +17,7 @@ export async function createUser(user: userData) {
     
     return newUser[0] as userData; // return user
   } catch(error: any) {
-    logger.error("Failed to create user: ", error.message);
+    logger.error(`Failed to create user: ${error.message}`);
     throw new Error("USER CREATION FAILED");
   }
 }

@@ -1,4 +1,4 @@
-import { createLogger, format, transports } from 'winston';
+import winston, { createLogger, format, transports } from 'winston';
 import path from 'path';
 
 const logger = createLogger({
@@ -10,9 +10,14 @@ const logger = createLogger({
     })
   ),
   transports: [
-    new transports.Console(),
-    new transports.File({ filename: path.join(__dirname, 'combined.log') }) // Log to a file
+    new transports.File({ filename: 'strygen.log'})
   ],
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+  }));
+}
 
 export default logger;

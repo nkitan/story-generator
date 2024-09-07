@@ -10,6 +10,6 @@ async function createStory(userId: number, input: string, segments: JSON) {
     userId: userId, // Reference to userId
   }).returning();
   
-  logger.info('Story Created:', story);
+  logger.info(`Story Created: ${story}`);
   return story;
 }
