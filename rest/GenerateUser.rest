@@ -1,0 +1,16 @@
+POST http://localhost:3000/api/user HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{ 
+    user: {
+        email: "ankitdas@gmail.com",
+        provider: "google",
+        provider_id: "google-provider-id",
+        username: "ankit",
+        profile: {
+            name: "Ankit Das",
+            avatar: "",
+        }
+    }
+}
