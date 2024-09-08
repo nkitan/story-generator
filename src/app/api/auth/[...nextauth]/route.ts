@@ -4,6 +4,7 @@ import GithubProvider from 'next-auth/providers/github';
 import db from '@/lib/db';
 import { users } from '@/schemas/users';
 import { eq } from 'drizzle-orm';
+import logger from '@/lib/logging';
 
 // Extend the default session to include the role
 declare module 'next-auth' {
@@ -40,8 +41,8 @@ export const authOptions: NextAuthOptions = {
         }
         return session;
         
-      } catch (error) {
-        console.error('Session callback error:', error);
+      } catch (error: any) {
+        logger.error(`Session callback error: ${error.message}`);
         return session; // Return the session without modifications in case of error
       }
     },

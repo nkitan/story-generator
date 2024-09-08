@@ -34,7 +34,7 @@ const Dashboard = () => {
           const result = await response.json();
           setImage(result.data[0].b64_json);
         } else {
-          console.error('Failed to fetch image');
+          logger.error('FETCH IMAGE FAILED');
         }
     };
       
@@ -47,7 +47,7 @@ const Dashboard = () => {
           const data: TextGenerationResponse = await response.json();
           setData(data);
         } else {
-          console.error('Failed to fetch summary');
+          logger.error('FETCH SUMMARY FAILED');
         }
     };
       
@@ -75,7 +75,7 @@ const Dashboard = () => {
         const data: userData = await response.json();
         setUser(data);
       } else {
-        console.error('Failed to fetch user');
+        logger.error('FETCH USER FAILED');
       }
     }
     

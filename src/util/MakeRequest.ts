@@ -1,3 +1,4 @@
+import logger from "@/lib/logging";
 import { ImageGenerationRequest } from "@/models/ImageGenerationRequest";
 import { TextGenerationRequest } from "@/models/TextGenerationRequest";
 
@@ -14,8 +15,8 @@ export const MakeRequest = async (base_url: string, options: TextGenerationReque
   .then(async (response) => {      
     return response.json();
   })
-  .catch(err => {
-    console.log("- ERROR: ","Failed To Get Text Completion: ", err);
+  .catch((error: any) => {
+    logger.error(`TEXT COMPLETION ERROR: ${error.message}`);
   })
 
   return data;

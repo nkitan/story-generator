@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createUser } from "@/controllers/users";
 import { userData } from '@/models/UserData';
+import logger from '@/lib/logging';
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,8 +21,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({message:"User Not Found!"} ,{status: 404, statusText: "NOT_FOUND"});    
     }
     return NextResponse.json(data, {status: 200, statusText: "SUCCESS"});
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    logger.error(`CREATE USER FAILED: ${error.message}`);
     return NextResponse.json({ message: 'An Error Occurred' }, { status: 500, statusText: "FAILED" });
   }
 }
