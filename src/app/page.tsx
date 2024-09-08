@@ -1,116 +1,23 @@
-'use client';
+// app/page.tsx
+"use client";
 
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { TextGenerationResponse } from "../models/TextGenerationResponse";
-import SummarySegment from "@/components/ui/summary-segment";
-import { userData } from "@/models/UserData";
-import logger from "@/lib/logging";
+import { useSession, signIn } from 'next-auth/react';
+import Dashboard from '@/app/dashboard/page';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
-  const [data, setData] = useState<TextGenerationResponse|null>(null);
-  const [image, setImage] = useState<string|null>(null);
-  const [segments, setSegments] = useState<string[]|null>(null);
-  const [user, setUser] = useState<userData| null>(null);
-
-  useEffect(() => {
-    parseSummary();
-  }, [data]);
-  const fetchSummaryImage = async () => {
-    const response = await fetch('/api/image', {
-      method: 'GET',
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      setImage(result.data[0].b64_json);
-    } else {
-      console.error('Failed to fetch image');
-    }
-  };
-
-  const fetchSummary = async () => {
-    const response = await fetch('/api/text', {
-      method: 'GET',
-    });
-
-    if (response.ok) {
-      const data: TextGenerationResponse = await response.json();
-      setData(data);
-    } else {
-      console.error('Failed to fetch summary');
-    }
-  };
-
-  const generateAndFetchUser = async () => {
-    const newUserData: userData = {
-      email: "ankitdas@gmail.com",
-      provider: "google",
-      providerId: "google-provider-id",
-      username: "ankit",
-      profile: {
-          name: "Ankit Das",
-          avatar: "",
-      }
+export default function HomePage() {
+    const { data: session } = useSession();
+    const router = useRouter();
+    console.log(session);
+    
+    // Redirect to sign in page if not signed in
+    if(!session){
+      router.push("/auth/signin")
     }
 
-    const response = await fetch('/api/user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ user: newUserData }),
-    });
-
-    if (response.ok) {
-      const data: userData = await response.json();
-      setUser(data);
-    } else {
-      console.error('Failed to fetch user');
-    }
-  }
-
-  const parseSummary = () => {
-    if(data != null){
-      const segmentString: string = data.choices[0].message.content;
-      const splitSegments = segmentString.split(/\d+\.\s/).filter(line => line.trim() !== "");
-      setSegments(splitSegments);
-    }
-  }
-
-  return (
-    <main className="m-4 flex-col items-center justify-center text-center">
-      <h1 className="text-center">API Response</h1>
-      <div className="z-10 w-auto h-auto items-center justify-center text-center font-mono text-sm p-2 pt-4 border rounded-lg border-gray-700">
-        <div className="flex max-w-[1024] text-center items-center justify-center border border-rounded border-gray-500 mb-2">
-          {image ? (
-            <img src={`data:image/png;base64, ${image}`}></img>
-          ) : (
-            <p>No Picture Yet</p>
-          )}
-        </div>
-        <div className="flex max-w-[1024] text-center items-center justify-center">
-          {segments ? (
-            <p>{segments.map((segment, i) => {
-                return <SummarySegment segment={segment} i={i}/>
-            })}</p>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </div>
-        <div className="flex max-w-[1024] text-center items-center justify-center">
-          {user ? (
-            <p>{user.username}</p>
-          ) : (
-            ""
-          )}
-        </div>
-        <div className="mt-2 space-x-2">
-          <Button onClick={fetchSummaryImage}>Get Banner</Button>
-          <Button onClick={fetchSummary}>Get Summary</Button>
-          <Button onClick={generateAndFetchUser}>Create Test User</Button>
-        </div>
+    return (
+      <div>
+          <Dashboard />
       </div>
-    </main>
-  );
+    );
 }
