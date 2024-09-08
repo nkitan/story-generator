@@ -1,5 +1,4 @@
 import winston, { createLogger, format, transports } from 'winston';
-import path from 'path';
 
 const logger = createLogger({
   level: 'info',

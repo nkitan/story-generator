@@ -52,7 +52,6 @@ export default function SignInPage() {
         />
       </div>
       <div className="flex w-full items-center justify-center lg:col-span-1 xl:col-span-2 py-12">
-          <DarkModeToggle className={"absolute top-3 right-6 xl:top-5"}/>
           <div className="grid grid-cols-1">
             <div className="col-span-1 mt-10 lg:mb-40">
               <h1 className="text-center text-3xl font-bold">StoryGenerator.in</h1>
