@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import GitHubProvider from 'next-auth/providers/github';
+import GithubProvider from 'next-auth/providers/github';
 import db from '@/lib/db';
 import { users } from '@/schemas/users';
 import { eq } from 'drizzle-orm';
@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    GitHubProvider({
+    GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
@@ -44,11 +44,12 @@ export const authOptions: NextAuthOptions = {
         console.error('Session callback error:', error);
         return session; // Return the session without modifications in case of error
       }
-    },  
+    },
   },
   pages: {
     signIn: '/auth/signin',
   },
 };
 
-export const POST = NextAuth(authOptions);
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST }

@@ -26,12 +26,21 @@ import LoginImage from "@/public/login-image-1.jpg"
 import GithubIcon from "@/components/icons/github-icon"
 import DarkModeToggle from "@/components/ui/dark-mode-toggle"
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export const description =
   "A login page with two columns. The first column has the login form with email and password. There's a Forgot your passwork link and a link to sign up if you do not have an account. The second column has a cover image."
 
 export default function SignInPage() {
   const [carousel,setCarousel] = useState<boolean>(false);
+  const session = useSession();
+  const router = useRouter();
+
+  if(session && session.status == "authenticated"){
+    router.replace("/");
+  }
 
   return (
     <div className="bg-background w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:grid-cols-5 xl:min-h-[800px] max-w-[120%]">
@@ -51,7 +60,7 @@ export default function SignInPage() {
                   <p>express your imagination</p>
               </div>
             </div>
-            <Card className="w-full max-w-sm bg-primary/5 mt-28 lg:mt-0 col-span-1">
+            <Card className="w-full max-w-sm bg-card/5 mt-28 lg:mt-0 col-span-1">
               <CardHeader>
                 <div className="grid gap-2 text-center">
                   <h1 className="text-3xl font-bold">Login</h1>
@@ -65,7 +74,9 @@ export default function SignInPage() {
                   <p>you can use</p>
                 </div>
                 <div className="grid gap-2">
-                  <Button variant="outline" className="w-full bg-primary/5 hover:bg-primary/10 hover:scale-[.99]">
+                  <Button variant="outline" className="w-full bg-background/5 hover:bg-primary/5 hover:scale-[.99]"
+                    onClick={() => signIn('google')}
+                  >
                     <GoogleIcon className={"mr-2 fill-black-100"}/>
                     Google
                   </Button>
@@ -77,7 +88,9 @@ export default function SignInPage() {
                       <span className="px-2 text-muted-foreground">or</span>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full bg-primary/5 hover:bg-primary/10 hover:scale-[.99]">
+                  <Button variant="outline" className="w-full bg-background/5 hover:bg-primary/5 hover:scale-[.99]"
+                    onClick={() => signIn('github')}
+                  >
                     <GithubIcon className=""/>
                     GitHub
                   </Button>

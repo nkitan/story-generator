@@ -8,11 +8,10 @@ import { useRouter } from 'next/navigation';
 export default function HomePage() {
     const { data: session } = useSession();
     const router = useRouter();
-    console.log(session);
-    
+        
     // Redirect to sign in page if not signed in
     if(!session){
-      router.push("/auth/signin")
+      router.replace("/auth/signin")
     }
 
     return (

@@ -5,19 +5,25 @@ import { Button } from "@/components/ui/button";
 import { TextGenerationResponse } from "@/models/TextGenerationResponse";
 import SummarySegment from "@/components/ui/summary-segment";
 import { userData } from "@/models/UserData";
-import logger from "@/lib/logging";
 import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from "next/navigation";
+import logger from "@/lib/logging";
 
 const Dashboard = () => {
     const [data, setData] = useState<TextGenerationResponse|null>(null);
     const [image, setImage] = useState<string|null>(null);
     const [segments, setSegments] = useState<string[]|null>(null);
     const [user, setUser] = useState<userData| null>(null);
-    const { data: session } = useSession();
+    const session = useSession();
+    const router = useRouter();
+
+    if(session == undefined){
+      router.replace("/auth/signin")
+    }
 
     useEffect(() => {
         parseSummary();
-    }, [data]);
+    }, [segments]);
       
     const fetchSummaryImage = async () => {
         const response = await fetch('/api/image', {
@@ -82,9 +88,8 @@ const Dashboard = () => {
     }
     
     return (
-    session != null && (
       <main className="m-4 flex-col items-center justify-center text-center">
-        <h1 className="text-center">API Response - {session.user?.email}</h1>
+        <h1 className="text-center">API Response</h1>
         <div className="z-10 w-auto h-auto items-center justify-center text-center font-mono text-sm p-2 pt-4 border rounded-lg border-gray-700">
           <div className="flex max-w-[1024] text-center items-center justify-center border border-rounded border-gray-500 mb-2">
             {image ? (
@@ -116,7 +121,7 @@ const Dashboard = () => {
             <button onClick={() => signOut()}>Sign out</button>
           </div>
         </div>
-      </main>)
+      </main>
     );
 }
 
