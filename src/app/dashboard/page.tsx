@@ -17,8 +17,8 @@ const Dashboard = () => {
     const session = useSession();
     const router = useRouter();
 
-    if(session == undefined){
-      router.replace("/auth/signin")
+    if(!session){
+      router.replace("/auth/signin");
     }
 
     useEffect(() => {
